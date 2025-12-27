@@ -14,10 +14,24 @@ struct ContentView: View {
     @Query private var exercises: [Exercise]
     
     var body: some View {
+        Group {
+            if userProfiles.isEmpty || exercises.isEmpty {
+                onboardingView
+            } else {
+                MainTabView()
+            }
+        }
+        .onAppear {
+            // Load exercise library on first launch
+            ExerciseLibraryLoader.importExercisesIfNeeded(modelContext: modelContext)
+        }
+    }
+    
+    private var onboardingView: some View {
         NavigationStack {
             VStack(spacing: 20) {
                 Text("IronPath")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.display)
                     .foregroundStyle(.primary)
                 
                 Text("Bio-Feedback Fitness")
@@ -63,22 +77,22 @@ struct ContentView: View {
                 Spacer()
                 
                 VStack(spacing: 12) {
-                    Text("🎉 Implementation Complete")
+                    Text("🎉 Ready to Start")
                         .font(.headline)
                     
-                    Text("All core data models, services, and the Integration Engine are ready. See IMPLEMENTATION_SUMMARY.md for details.")
+                    Text("Initialize your profile to begin tracking your fitness journey.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                     
                     Button(action: initializeData) {
-                        Label("Initialize Sample Data", systemImage: "arrow.clockwise")
+                        Label("Initialize Profile", systemImage: "arrow.clockwise")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.blue)
+                            .background(Color.ironPathPrimary)
                             .cornerRadius(12)
                     }
                     .disabled(!exercises.isEmpty && !userProfiles.isEmpty)
@@ -89,10 +103,6 @@ struct ContentView: View {
             }
             .padding()
             .navigationBarTitleDisplayMode(.inline)
-        }
-        .onAppear {
-            // Load exercise library on first launch
-            ExerciseLibraryLoader.importExercisesIfNeeded(modelContext: modelContext)
         }
     }
     

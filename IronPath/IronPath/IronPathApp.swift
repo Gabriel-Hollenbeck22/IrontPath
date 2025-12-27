@@ -44,6 +44,11 @@ struct IronPathApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear {
+                    // Ensure exercise library is loaded
+                    let context = sharedModelContainer.mainContext
+                    ExerciseLibraryLoader.importExercisesIfNeeded(modelContext: context)
+                }
         }
         .modelContainer(sharedModelContainer)
     }
