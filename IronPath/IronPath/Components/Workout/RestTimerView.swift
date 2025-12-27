@@ -60,6 +60,9 @@ struct RestTimerView: View {
                 .buttonStyle(.bordered)
             }
         }
+        .onDisappear {
+            stopTimer()
+        }
     }
     
     private func startTimer() {

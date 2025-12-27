@@ -30,15 +30,15 @@ struct WorkoutView: View {
                     workoutStartView
                 }
             }
+            .navigationTitle("Workout")
+            .navigationBarTitleDisplayMode(.large)
             .onChange(of: workoutManager?.isWorkoutActive) { _, newValue in
                 isWorkoutActive = newValue ?? false
             }
-        }
-        .navigationTitle("Workout")
-        .navigationBarTitleDisplayMode(.large)
-        .onAppear {
-            workoutManager = WorkoutManager(modelContext: modelContext)
-            isWorkoutActive = workoutManager?.isWorkoutActive ?? false
+            .onAppear {
+                workoutManager = WorkoutManager(modelContext: modelContext)
+                isWorkoutActive = workoutManager?.isWorkoutActive ?? false
+            }
         }
     }
     

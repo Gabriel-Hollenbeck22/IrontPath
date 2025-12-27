@@ -101,7 +101,9 @@ struct DashboardView: View {
         
         Task {
             // Get today's summary
-            if let summary = try? service.getTodaysSummary() {
+            let summary = try? service.getTodaysSummary()
+            
+            await MainActor.run {
                 todaysSummary = summary
             }
             
@@ -109,8 +111,8 @@ struct DashboardView: View {
             let score = engine.calculateRecoveryScore(
                 for: Date(),
                 profile: profile,
-                sleepHours: todaysSummary?.sleepHours,
-                proteinIntake: todaysSummary?.totalProtein,
+                sleepHours: summary?.sleepHours,
+                proteinIntake: summary?.totalProtein,
                 lastWorkoutDate: nil // TODO: Get from WorkoutManager
             )
             

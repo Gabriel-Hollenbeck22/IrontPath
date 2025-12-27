@@ -44,11 +44,60 @@ struct QuickActionsSection: View {
             }
         }
         .sheet(isPresented: $showingWorkout) {
-            // TODO: Navigate to workout view
+            WorkoutQuickStartView()
         }
         .sheet(isPresented: $showingNutrition) {
-            // TODO: Navigate to nutrition search
+            FoodSearchView()
         }
+    }
+}
+
+// MARK: - Workout Quick Start View
+
+struct WorkoutQuickStartView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @State private var workoutManager: WorkoutManager?
+    @State private var workoutName = "Workout"
+    
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: Spacing.xl) {
+                TextField("Workout Name", text: $workoutName)
+                    .textFieldStyle(.roundedBorder)
+                    .padding()
+                
+                Button(action: startWorkout) {
+                    Label("Start Workout", systemImage: "play.fill")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.ironPathPrimary)
+                        .cornerRadius(12)
+                }
+                .padding(.horizontal)
+            }
+            .navigationTitle("Start Workout")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+            .onAppear {
+                workoutManager = WorkoutManager(modelContext: modelContext)
+            }
+        }
+    }
+    
+    private func startWorkout() {
+        guard let manager = workoutManager else { return }
+        _ = manager.startWorkout(name: workoutName.isEmpty ? "Workout" : workoutName)
+        HapticManager.success()
+        dismiss()
     }
 }
 
