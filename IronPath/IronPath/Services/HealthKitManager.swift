@@ -299,4 +299,3 @@ enum HealthKitError: LocalizedError {
         }
     }
 }
-
