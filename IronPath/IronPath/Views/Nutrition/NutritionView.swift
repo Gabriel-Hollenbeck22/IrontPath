@@ -10,9 +10,16 @@ import SwiftData
 
 struct NutritionView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query private var userProfiles: [UserProfile]
     @State private var nutritionService: NutritionService?
     @State private var todaysSummary: DailySummary?
     @State private var showingSearch = false
+    @State private var showingBarcodeScanner = false
+    @State private var scannedFoodItem: FoodItem?
+    
+    private var userProfile: UserProfile? {
+        userProfiles.first
+    }
     
     var body: some View {
         NavigationStack {
@@ -46,6 +53,14 @@ struct NutritionView: View {
             .sheet(isPresented: $showingSearch) {
                 FoodSearchView()
             }
+            .sheet(isPresented: $showingBarcodeScanner) {
+                BarcodeScannerView { foodItem in
+                    scannedFoodItem = foodItem
+                }
+            }
+            .sheet(item: $scannedFoodItem) { foodItem in
+                FoodDetailView(foodItem: foodItem)
+            }
             .background(Color(.systemGroupedBackground))
             .onAppear {
                 setupService()
@@ -62,21 +77,21 @@ struct NutritionView: View {
             HStack(spacing: Spacing.lg) {
                 MacroRingView(
                     current: summary.totalProtein,
-                    target: 150.0, // TODO: Get from profile
+                    target: userProfile?.targetProtein ?? 150.0,
                     color: .macroProtein,
                     label: "Protein"
                 )
                 
                 MacroRingView(
                     current: summary.totalCarbs,
-                    target: 200.0, // TODO: Get from profile
+                    target: userProfile?.targetCarbs ?? 200.0,
                     color: .macroCarbs,
                     label: "Carbs"
                 )
                 
                 MacroRingView(
                     current: summary.totalFat,
-                    target: 65.0, // TODO: Get from profile
+                    target: userProfile?.targetFat ?? 65.0,
                     color: .macroFat,
                     label: "Fat"
                 )
@@ -100,7 +115,7 @@ struct NutritionView: View {
                         .cornerRadius(12)
                 }
                 
-                Button(action: { /* TODO: Show barcode scanner */ }) {
+                Button(action: { showingBarcodeScanner = true }) {
                     Label("Scan", systemImage: "barcode.viewfinder")
                         .font(.headline)
                         .foregroundColor(.white)

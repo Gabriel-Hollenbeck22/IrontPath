@@ -13,6 +13,12 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
+    let onFoodScanned: ((FoodItem) -> Void)?
+    
+    init(onFoodScanned: ((FoodItem) -> Void)? = nil) {
+        self.onFoodScanned = onFoodScanned
+    }
+    
     @State private var nutritionService: NutritionService?
     
     func makeUIViewController(context: Context) -> DataScannerViewController {
@@ -68,8 +74,8 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
             if let foodItem = try await service.searchByBarcode(barcode) {
                 await MainActor.run {
                     HapticManager.success()
+                    onFoodScanned?(foodItem)
                     dismiss()
-                    // TODO: Show food detail view
                 }
             } else {
                 await MainActor.run {
@@ -86,6 +92,8 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
 }
 
 #Preview {
-    BarcodeScannerView()
+    BarcodeScannerView { foodItem in
+        print("Scanned: \(foodItem.name)")
+    }
 }
 

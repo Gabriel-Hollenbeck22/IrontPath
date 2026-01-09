@@ -10,6 +10,8 @@ import SwiftUI
 struct RecoveryScoreCard: View {
     let recoveryScore: Double
     let profile: UserProfile
+    let sleepHours: Double?
+    let proteinIntake: Double?
     
     var body: some View {
         GlassMorphicCard {
@@ -27,13 +29,13 @@ struct RecoveryScoreCard: View {
                         recoveryFactor(
                             label: "Sleep",
                             value: profile.sleepGoalHours,
-                            current: nil // TODO: Get from HealthKit
+                            current: sleepHours
                         )
                         
                         recoveryFactor(
                             label: "Protein",
                             value: profile.targetProtein,
-                            current: nil // TODO: Get from today's summary
+                            current: proteinIntake
                         )
                     }
                 }
@@ -62,7 +64,9 @@ struct RecoveryScoreCard: View {
 #Preview {
     RecoveryScoreCard(
         recoveryScore: 85,
-        profile: UserProfile()
+        profile: UserProfile(),
+        sleepHours: 7.5,
+        proteinIntake: 150.0
     )
     .padding()
 }

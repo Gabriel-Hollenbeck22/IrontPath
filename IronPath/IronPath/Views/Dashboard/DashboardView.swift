@@ -11,12 +11,23 @@ import SwiftData
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var userProfiles: [UserProfile]
+    @Query(
+        filter: #Predicate<Workout> { $0.isCompleted },
+        sort: [SortDescriptor(\.date, order: .reverse)]
+    ) private var completedWorkouts: [Workout]
     
     @State private var integrationEngine: IntegrationEngine?
     @State private var nutritionService: NutritionService?
+    @State private var healthKitManager: HealthKitManager?
     @State private var recoveryScore: Double = 0
     @State private var suggestions: [SmartSuggestion] = []
     @State private var todaysSummary: DailySummary?
+    
+    @Binding var selectedTab: Int?
+    
+    private var lastWorkoutDate: Date? {
+        completedWorkouts.first?.date
+    }
     
     var body: some View {
         NavigationStack {
@@ -29,7 +40,9 @@ struct DashboardView: View {
                     if let profile = userProfiles.first {
                         RecoveryScoreCard(
                             recoveryScore: recoveryScore,
-                            profile: profile
+                            profile: profile,
+                            sleepHours: todaysSummary?.sleepHours,
+                            proteinIntake: todaysSummary?.totalProtein
                         )
                     }
                     
@@ -47,7 +60,7 @@ struct DashboardView: View {
                     }
                     
                     // Quick Actions
-                    QuickActionsSection()
+                    QuickActionsSection(selectedTab: $selectedTab)  // Pass binding
                 }
                 .padding(.horizontal, Spacing.md)
                 .padding(.vertical, Spacing.lg)
@@ -90,6 +103,15 @@ struct DashboardView: View {
     private func setupServices() {
         integrationEngine = IntegrationEngine(modelContext: modelContext)
         nutritionService = NutritionService(modelContext: modelContext)
+        healthKitManager = HealthKitManager()
+        
+        // Sync HealthKit data
+        Task {
+            try? await healthKitManager?.syncTodaysData()
+            await MainActor.run {
+                loadDashboardData()  // Reload after sync
+            }
+        }
     }
     
     private func loadDashboardData() {
@@ -108,12 +130,16 @@ struct DashboardView: View {
             }
             
             // Calculate recovery score
+            let lastWorkout = await MainActor.run {
+                lastWorkoutDate
+            }
+            
             let score = engine.calculateRecoveryScore(
                 for: Date(),
                 profile: profile,
                 sleepHours: summary?.sleepHours,
                 proteinIntake: summary?.totalProtein,
-                lastWorkoutDate: nil // TODO: Get from WorkoutManager
+                lastWorkoutDate: lastWorkout
             )
             
             await MainActor.run {
@@ -130,7 +156,7 @@ struct DashboardView: View {
 }
 
 #Preview {
-    DashboardView()
+    DashboardView(selectedTab: .constant(nil))
         .modelContainer(for: UserProfile.self, inMemory: true)
 }
 
