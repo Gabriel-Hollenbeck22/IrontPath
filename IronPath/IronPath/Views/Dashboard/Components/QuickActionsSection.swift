@@ -16,33 +16,25 @@ struct QuickActionsSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Text("Quick Actions")
-                .font(.headline)
+                .font(.cardTitle)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             HStack(spacing: Spacing.md) {
-                HapticButton(hapticStyle: .medium) {
+                Button {
+                    HapticManager.mediumImpact()
                     showingWorkout = true
                 } label: {
                     Label("Start Workout", systemImage: "dumbbell.fill")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.ironPathPrimary)
-                        .cornerRadius(12)
                 }
+                .neonGlowButton()
                 
-                HapticButton(hapticStyle: .medium) {
+                Button {
+                    HapticManager.mediumImpact()
                     showingNutrition = true
                 } label: {
                     Label("Log Meal", systemImage: "fork.knife")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.ironPathAccent)
-                        .cornerRadius(12)
                 }
+                .neonGlowButton(color: .ironPathAccent)
             }
         }
         .sheet(isPresented: $showingWorkout) {

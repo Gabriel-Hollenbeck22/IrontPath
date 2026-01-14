@@ -179,6 +179,26 @@ final class IntegrationEngine {
             suggestions.append(muscleRecoverySuggestion)
         }
         
+        // Check for progressive overload opportunities
+        if let overloadSuggestion = try checkProgressiveOverload() {
+            suggestions.append(overloadSuggestion)
+        }
+        
+        // Check for deload week recommendation
+        if let deloadSuggestion = try checkDeloadRecommendation(summaries: recentSummaries) {
+            suggestions.append(deloadSuggestion)
+        }
+        
+        // Check for carb timing around workouts
+        if let carbTimingSuggestion = checkCarbTiming(profile: profile, summaries: recentSummaries) {
+            suggestions.append(carbTimingSuggestion)
+        }
+        
+        // Check for creatine timing (if high intensity training)
+        if let creatineSuggestion = try checkCreatineRecommendation() {
+            suggestions.append(creatineSuggestion)
+        }
+        
         activeSuggestions = suggestions
         return suggestions
     }
@@ -275,6 +295,161 @@ final class IntegrationEngine {
                     priority: .low,
                     title: "Leg Recovery in Progress",
                     message: "You had high leg volume yesterday. Upper body work recommended today.",
+                    actionable: false
+                )
+            }
+        }
+        
+        return nil
+    }
+    
+    // MARK: - Progressive Overload Check
+    
+    private func checkProgressiveOverload() throws -> SmartSuggestion? {
+        // Get recent workout sets to find exercises ready for progression
+        let twoWeeksAgo = Calendar.current.date(byAdding: .day, value: -14, to: Date())!
+        let setDescriptor = FetchDescriptor<WorkoutSet>(
+            predicate: #Predicate { set in
+                set.timestamp >= twoWeeksAgo
+            },
+            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+        )
+        
+        let recentSets = try modelContext.fetch(setDescriptor)
+        
+        // Group by exercise
+        var exerciseSets: [UUID: [WorkoutSet]] = [:]
+        for set in recentSets {
+            if let exerciseId = set.exercise?.id {
+                exerciseSets[exerciseId, default: []].append(set)
+            }
+        }
+        
+        // Find exercises where user hit target reps consistently
+        for (_, sets) in exerciseSets {
+            guard sets.count >= 3 else { continue }
+            
+            let recentThree = Array(sets.prefix(3))
+            let allHitEightOrMore = recentThree.allSatisfy { $0.reps >= 8 }
+            let sameWeight = Set(recentThree.map { $0.weight }).count == 1
+            
+            // User hit 8+ reps at same weight 3 times in a row
+            if allHitEightOrMore && sameWeight, let exerciseName = sets.first?.exercise?.name {
+                let currentWeight = recentThree.first!.weight
+                let suggestedWeight = currentWeight + 5 // 5 lb increment
+                
+                return SmartSuggestion(
+                    id: UUID(),
+                    type: .workout,
+                    priority: .medium,
+                    title: "Time to Progress!",
+                    message: "You've hit 8+ reps on \(exerciseName) three sessions in a row. Try \(Int(suggestedWeight)) lbs next time.",
+                    actionable: true
+                )
+            }
+        }
+        
+        return nil
+    }
+    
+    // MARK: - Deload Recommendation
+    
+    private func checkDeloadRecommendation(summaries: [DailySummary]) throws -> SmartSuggestion? {
+        // Check for 4+ weeks of consistent high volume training
+        let fourWeeksAgo = Calendar.current.date(byAdding: .day, value: -28, to: Date())!
+        let workoutDescriptor = FetchDescriptor<Workout>(
+            predicate: #Predicate { workout in
+                workout.date >= fourWeeksAgo && workout.isCompleted
+            }
+        )
+        
+        let recentWorkouts = try modelContext.fetch(workoutDescriptor)
+        
+        // Count training days per week
+        let calendar = Calendar.current
+        var weeklyWorkouts: [Int: Int] = [:]
+        
+        for workout in recentWorkouts {
+            let weekOfYear = calendar.component(.weekOfYear, from: workout.date)
+            weeklyWorkouts[weekOfYear, default: 0] += 1
+        }
+        
+        // If 4+ weeks of 4+ workouts per week
+        let highVolumeWeeks = weeklyWorkouts.values.filter { $0 >= 4 }.count
+        
+        if highVolumeWeeks >= 4 {
+            // Check if performance is declining
+            let volumes = recentWorkouts.map { $0.totalVolume }
+            if volumes.count >= 4 {
+                let recentAvg = volumes.prefix(2).reduce(0, +) / 2.0
+                let olderAvg = volumes.suffix(2).reduce(0, +) / 2.0
+                
+                if recentAvg < olderAvg * 0.9 { // 10% volume drop
+                    return SmartSuggestion(
+                        id: UUID(),
+                        type: .recovery,
+                        priority: .high,
+                        title: "Deload Week Recommended",
+                        message: "You've trained hard for 4+ weeks and performance is declining. Consider a deload week with 50% volume to optimize recovery.",
+                        actionable: true
+                    )
+                }
+            }
+        }
+        
+        return nil
+    }
+    
+    // MARK: - Carb Timing Check
+    
+    private func checkCarbTiming(profile: UserProfile, summaries: [DailySummary]) -> SmartSuggestion? {
+        guard let todaysSummary = summaries.first else { return nil }
+        
+        // Check if user has high workout volume but low carb intake
+        let carbIntake = todaysSummary.totalCarbs
+        let targetCarbs = profile.targetCarbs
+        let workoutVolume = todaysSummary.totalWorkoutVolume
+        
+        // High volume day (>5000 lbs total) but carbs below 80% target
+        if workoutVolume > 5000 && carbIntake < targetCarbs * 0.8 {
+            return SmartSuggestion(
+                id: UUID(),
+                type: .nutrition,
+                priority: .medium,
+                title: "Fuel Your Training",
+                message: "High volume workout today but carbs are low. Consider adding \(Int((targetCarbs - carbIntake) * 0.5))g carbs pre/post workout for better performance.",
+                actionable: true
+            )
+        }
+        
+        return nil
+    }
+    
+    // MARK: - Creatine Recommendation
+    
+    private func checkCreatineRecommendation() throws -> SmartSuggestion? {
+        // Check for consistent strength training
+        let monthAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date())!
+        let workoutDescriptor = FetchDescriptor<Workout>(
+            predicate: #Predicate { workout in
+                workout.date >= monthAgo && workout.isCompleted
+            }
+        )
+        
+        let recentWorkouts = try modelContext.fetch(workoutDescriptor)
+        
+        // If user has been training consistently (12+ workouts in a month)
+        if recentWorkouts.count >= 12 {
+            // Only show this suggestion occasionally (random chance)
+            let shouldShow = Int.random(in: 0..<10) == 0
+            
+            if shouldShow {
+                return SmartSuggestion(
+                    id: UUID(),
+                    type: .general,
+                    priority: .low,
+                    title: "Consider Creatine",
+                    message: "You're training consistently! Creatine monohydrate (5g/day) is one of the most researched and effective supplements for strength and muscle gains.",
                     actionable: false
                 )
             }

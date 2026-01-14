@@ -42,5 +42,16 @@ extension Font {
     
     /// 11pt, Regular - For fine print
     static let caption2 = Font.system(size: 11, weight: .regular, design: .default)
+    
+    // MARK: - Premium UI Fonts
+    
+    /// 20pt, Bold, Rounded - For section titles with premium feel
+    static let sectionTitle = Font.system(size: 20, weight: .bold, design: .rounded)
+    
+    /// 17pt, Semibold, Rounded - For card titles
+    static let cardTitle = Font.system(size: 17, weight: .semibold, design: .rounded)
+    
+    /// 15pt, Medium, Rounded - For emphasized callouts
+    static let emphasizedCallout = Font.system(size: 15, weight: .medium, design: .rounded)
 }
 

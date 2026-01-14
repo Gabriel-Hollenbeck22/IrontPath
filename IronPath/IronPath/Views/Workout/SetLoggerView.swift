@@ -125,9 +125,7 @@ struct SetLoggerView: View {
                         }
                     }
                 }
-                .padding()
-                .background(Color.cardBackground)
-                .cornerRadius(16)
+                .premiumCard()
                 
                 // Stats
                 VStack(spacing: Spacing.sm) {
@@ -145,12 +143,11 @@ struct SetLoggerView: View {
                             .font(.headline)
                     }
                 }
-                .padding()
-                .background(Color.cardBackground)
-                .cornerRadius(16)
+                .premiumCard()
                 
                 // Complete Set Button
-                HapticButton(hapticStyle: .success) {
+                Button {
+                    HapticManager.success()
                     do {
                         let setNumber = (workout.sets?.count ?? 0) + 1
                         _ = try manager.logSet(
@@ -166,13 +163,8 @@ struct SetLoggerView: View {
                     }
                 } label: {
                     Label("Complete Set", systemImage: "checkmark.circle.fill")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.ironPathSuccess)
-                        .cornerRadius(12)
                 }
+                .neonGlowButton(color: .ironPathSuccess)
                 
                 Spacer()
             }

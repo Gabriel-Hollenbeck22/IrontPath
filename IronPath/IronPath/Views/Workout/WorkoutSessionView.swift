@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Combine
 
 struct WorkoutSessionView: View {
     @Environment(\.modelContext) private var modelContext
@@ -19,6 +20,8 @@ struct WorkoutSessionView: View {
     @State private var showingExercisePicker = false
     @State private var showingSetLogger = false
     @State private var showingSummary = false
+    @State private var currentTime = Date()
+    @State private var showCelebration = false
     
     var body: some View {
         ScrollView {
@@ -69,23 +72,26 @@ struct WorkoutSessionView: View {
         .sheet(isPresented: $showingSummary) {
             WorkoutSummaryView(workout: workout, manager: manager)
         }
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+            currentTime = Date()
+        }
+        .celebrationOverlay(isPresented: $showCelebration, type: .workoutComplete)
     }
     
     private var workoutHeader: some View {
-        VStack(spacing: Spacing.sm) {
-            Text("Duration: \(FormatHelpers.duration(workout.durationSeconds))")
+        let liveSeconds = Int(currentTime.timeIntervalSince(workout.startTime))
+        let volume = workout.sets?.reduce(0.0) { $0 + $1.volume } ?? 0
+        
+        return VStack(spacing: Spacing.sm) {
+            Text("Duration: \(FormatHelpers.duration(liveSeconds))")
                 .font(.callout)
                 .foregroundStyle(.secondary)
             
-            if let volume = workout.sets?.reduce(0) { $0 + $1.volume } {
-                Text("Total Volume: \(FormatHelpers.weight(volume))")
-                    .font(.headline)
-            }
+            Text("Total Volume: \(FormatHelpers.weight(volume))")
+                .font(.headline)
         }
         .frame(maxWidth: .infinity)
-        .padding(Spacing.cardPadding)
-        .background(Color.cardBackground)
-        .cornerRadius(16)
+        .premiumCard()
     }
     
     private func exerciseListSection(sets: [WorkoutSet]) -> some View {
@@ -109,36 +115,32 @@ struct WorkoutSessionView: View {
     }
     
     private var addExerciseButton: some View {
-        HapticButton(hapticStyle: .medium) {
+        Button {
+            HapticManager.mediumImpact()
             showingExercisePicker = true
         } label: {
             Label("Add Exercise", systemImage: "plus.circle.fill")
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.ironPathPrimary)
-                .cornerRadius(12)
         }
+        .neonGlowButton()
     }
     
     private var completeWorkoutButton: some View {
-        HapticButton(hapticStyle: .success) {
+        Button {
             do {
                 try manager.completeWorkout()
-                showingSummary = true
+                // Show celebration first, then summary
+                showCelebration = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    showCelebration = false
+                    showingSummary = true
+                }
             } catch {
                 print("Error completing workout: \(error)")
             }
         } label: {
             Label("Complete Workout", systemImage: "checkmark.circle.fill")
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.ironPathSuccess)
-                .cornerRadius(12)
         }
+        .neonGlowButton(color: .ironPathSuccess)
     }
 }
 
@@ -172,9 +174,7 @@ struct ExerciseSetsView: View {
                 .padding(.horizontal, Spacing.sm)
             }
         }
-        .padding(Spacing.cardPadding)
-        .background(Color.cardBackground)
-        .cornerRadius(12)
+        .nestedCard()
     }
 }
 

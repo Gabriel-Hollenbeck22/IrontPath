@@ -35,11 +35,20 @@ final class UserProfile {
     var preferredWeightUnit: WeightUnit
     var useMetricSystem: Bool
     
+    // Onboarding (optional to support migration from older schema)
+    var hasCompletedOnboarding: Bool?
+    
     @Relationship(deleteRule: .cascade)
     var workouts: [Workout]?
     
     @Relationship(deleteRule: .cascade)
     var dailySummaries: [DailySummary]?
+    
+    @Relationship(deleteRule: .cascade)
+    var weightEntries: [WeightEntry]?
+    
+    // Goal weight for progress tracking
+    var goalWeight: Double?
     
     init(
         id: UUID = UUID(),
@@ -57,7 +66,8 @@ final class UserProfile {
         activityLevel: ActivityLevel = .moderate,
         primaryGoal: FitnessGoal = .muscleGain,
         preferredWeightUnit: WeightUnit = .pounds,
-        useMetricSystem: Bool = false
+        useMetricSystem: Bool = false,
+        hasCompletedOnboarding: Bool = false
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -75,6 +85,7 @@ final class UserProfile {
         self.primaryGoal = primaryGoal
         self.preferredWeightUnit = preferredWeightUnit
         self.useMetricSystem = useMetricSystem
+        self.hasCompletedOnboarding = hasCompletedOnboarding
     }
     
     /// Calculate protein target based on bodyweight (if available)

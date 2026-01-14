@@ -36,15 +36,15 @@ final class NutritionService {
     func searchFood(query: String) async throws -> [FoodSearchResult] {
         var results: [FoodSearchResult] = []
         
-        // Tier 1: User History
+        // Tier 1: User History (convert FoodItem to FoodSearchItem)
         let userResults = searchUserHistory(query: query)
-        results.append(contentsOf: userResults.map { .userHistory($0) })
+        results.append(contentsOf: userResults.map { .userHistory(FoodSearchItem(from: $0)) })
         
-        // Tier 2: Bundled Foods
+        // Tier 2: Bundled Foods (convert FoodItem to FoodSearchItem)
         let bundledResults = searchBundledFoods(query: query)
-        results.append(contentsOf: bundledResults.map { .bundled($0) })
+        results.append(contentsOf: bundledResults.map { .bundled(FoodSearchItem(from: $0)) })
         
-        // Tier 3: Open Food Facts (only if we don't have enough results)
+        // Tier 3: Open Food Facts (already returns FoodSearchItem)
         if results.count < 10 {
             let apiResults = try await searchOpenFoodFacts(query: query)
             results.append(contentsOf: apiResults.map { .openFoodFacts($0) })
@@ -85,7 +85,7 @@ final class NutritionService {
     }
     
     /// Search Open Food Facts API
-    private func searchOpenFoodFacts(query: String) async throws -> [FoodItem] {
+    private func searchOpenFoodFacts(query: String) async throws -> [FoodSearchItem] {
         let baseURL = AppConfiguration.openFoodFactsBaseURL
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
         let urlString = "\(baseURL)/search?search_terms=\(encodedQuery)&page_size=10&json=true"
@@ -105,7 +105,7 @@ final class NutritionService {
         let searchResponse = try decoder.decode(OpenFoodFactsSearchResponse.self, from: data)
         
         return searchResponse.products.compactMap { product in
-            parseFoodItemFromAPI(product)
+            parseSearchItemFromAPI(product)
         }
     }
     
@@ -144,7 +144,12 @@ final class NutritionService {
             throw NutritionError.productNotFound
         }
         
-        return parseFoodItemFromAPI(productResponse.product)
+        // Parse to search item first, then convert to FoodItem
+        guard let searchItem = parseSearchItemFromAPI(productResponse.product) else {
+            throw NutritionError.productNotFound
+        }
+        
+        return createFoodItem(from: searchItem)
     }
     
     // MARK: - Food Logging
@@ -368,10 +373,11 @@ final class NutritionService {
         bundledFoods = []
     }
     
-    private func parseFoodItemFromAPI(_ product: OpenFoodFactsProduct) -> FoodItem? {
+    /// Parse API response to transient FoodSearchItem (not SwiftData)
+    private func parseSearchItemFromAPI(_ product: OpenFoodFactsProduct) -> FoodSearchItem? {
         guard let nutrients = product.nutriments else { return nil }
         
-        return FoodItem(
+        return FoodSearchItem(
             name: product.productName ?? "Unknown",
             barcode: product.code,
             brand: product.brands,
@@ -384,16 +390,132 @@ final class NutritionService {
             source: .openFoodFacts
         )
     }
+    
+    /// Convert a FoodSearchItem to a FoodItem and insert into the model context
+    /// Call this when the user selects a food to log
+    func createFoodItem(from searchItem: FoodSearchItem) -> FoodItem {
+        // Check if we already have this item (by barcode or ID)
+        if let barcode = searchItem.barcode {
+            let descriptor = FetchDescriptor<FoodItem>(
+                predicate: #Predicate { food in
+                    food.barcode == barcode
+                }
+            )
+            if let existing = try? modelContext.fetch(descriptor).first {
+                // Update last used
+                existing.lastUsed = Date()
+                existing.useCount += 1
+                return existing
+            }
+        }
+        
+        // Create new FoodItem
+        let foodItem = FoodItem(
+            id: searchItem.id,
+            name: searchItem.name,
+            barcode: searchItem.barcode,
+            brand: searchItem.brand,
+            caloriesPer100g: searchItem.caloriesPer100g,
+            proteinPer100g: searchItem.proteinPer100g,
+            carbsPer100g: searchItem.carbsPer100g,
+            fatPer100g: searchItem.fatPer100g,
+            fiberPer100g: searchItem.fiberPer100g,
+            sugarPer100g: searchItem.sugarPer100g,
+            source: searchItem.source,
+            lastUsed: Date(),
+            useCount: 1
+        )
+        
+        modelContext.insert(foodItem)
+        return foodItem
+    }
+}
+
+// MARK: - Transient Search Item (Not SwiftData)
+
+/// A lightweight, transient struct for search results that doesn't use SwiftData.
+/// This prevents crashes when creating food items in async contexts without a ModelContext.
+/// Convert to FoodItem only when the user selects an item to log.
+struct FoodSearchItem: Identifiable, Hashable {
+    let id: UUID
+    let name: String
+    let barcode: String?
+    let brand: String?
+    let caloriesPer100g: Double
+    let proteinPer100g: Double
+    let carbsPer100g: Double
+    let fatPer100g: Double
+    let fiberPer100g: Double?
+    let sugarPer100g: Double?
+    let source: FoodSource
+    
+    init(
+        id: UUID = UUID(),
+        name: String,
+        barcode: String? = nil,
+        brand: String? = nil,
+        caloriesPer100g: Double,
+        proteinPer100g: Double,
+        carbsPer100g: Double,
+        fatPer100g: Double,
+        fiberPer100g: Double? = nil,
+        sugarPer100g: Double? = nil,
+        source: FoodSource
+    ) {
+        self.id = id
+        self.name = name
+        self.barcode = barcode
+        self.brand = brand
+        self.caloriesPer100g = caloriesPer100g
+        self.proteinPer100g = proteinPer100g
+        self.carbsPer100g = carbsPer100g
+        self.fatPer100g = fatPer100g
+        self.fiberPer100g = fiberPer100g
+        self.sugarPer100g = sugarPer100g
+        self.source = source
+    }
+    
+    /// Create from an existing FoodItem (for user history)
+    init(from foodItem: FoodItem) {
+        self.id = foodItem.id
+        self.name = foodItem.name
+        self.barcode = foodItem.barcode
+        self.brand = foodItem.brand
+        self.caloriesPer100g = foodItem.caloriesPer100g
+        self.proteinPer100g = foodItem.proteinPer100g
+        self.carbsPer100g = foodItem.carbsPer100g
+        self.fatPer100g = foodItem.fatPer100g
+        self.fiberPer100g = foodItem.fiberPer100g
+        self.sugarPer100g = foodItem.sugarPer100g
+        self.source = foodItem.source
+    }
+    
+    /// Calculate macros for a specific serving size in grams
+    func macrosForServing(_ grams: Double) -> MacroNutrients {
+        let multiplier = grams / 100.0
+        return MacroNutrients(
+            calories: caloriesPer100g * multiplier,
+            protein: proteinPer100g * multiplier,
+            carbs: carbsPer100g * multiplier,
+            fat: fatPer100g * multiplier,
+            fiber: (fiberPer100g ?? 0) * multiplier,
+            sugar: (sugarPer100g ?? 0) * multiplier
+        )
+    }
 }
 
 // MARK: - Search Results
 
-enum FoodSearchResult {
-    case userHistory(FoodItem)
-    case bundled(FoodItem)
-    case openFoodFacts(FoodItem)
+enum FoodSearchResult: Identifiable {
+    case userHistory(FoodSearchItem)
+    case bundled(FoodSearchItem)
+    case openFoodFacts(FoodSearchItem)
     
-    var foodItem: FoodItem {
+    var id: UUID {
+        searchItem.id
+    }
+    
+    var searchItem: FoodSearchItem {
         switch self {
         case .userHistory(let item), .bundled(let item), .openFoodFacts(let item):
             return item

@@ -32,7 +32,13 @@ struct AnalyticsView: View {
             }
             .navigationTitle("Analytics")
             .navigationBarTitleDisplayMode(.large)
-            .background(Color(.systemGroupedBackground))
+            .background(
+                LinearGradient(
+                    colors: [Color.subtleGradientTop, Color.subtleGradientBottom],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
             .onAppear {
                 setupEngine()
                 loadCorrelationData()

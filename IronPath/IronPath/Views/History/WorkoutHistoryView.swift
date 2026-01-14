@@ -16,10 +16,20 @@ struct WorkoutHistoryView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(workouts) { workout in
-                    NavigationLink(destination: WorkoutDetailView(workout: workout)) {
-                        WorkoutHistoryRow(workout: workout)
+            Group {
+                if workouts.isEmpty {
+                    ContentUnavailableView(
+                        "No Workouts Yet",
+                        systemImage: "dumbbell.fill",
+                        description: Text("Complete your first workout to see your history here")
+                    )
+                } else {
+                    List {
+                        ForEach(workouts) { workout in
+                            NavigationLink(destination: WorkoutDetailView(workout: workout)) {
+                                WorkoutHistoryRow(workout: workout)
+                            }
+                        }
                     }
                 }
             }
@@ -44,7 +54,7 @@ struct WorkoutHistoryRow: View {
                 
                 Spacer()
                 
-                if let volume = workout.sets?.reduce(0) { $0 + $1.volume } {
+                if let volume = workout.sets?.reduce(0, { $0 + $1.volume }) {
                     Text(FormatHelpers.weight(volume))
                         .font(.caption)
                         .foregroundStyle(.secondary)

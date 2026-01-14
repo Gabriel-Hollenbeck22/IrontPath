@@ -14,33 +14,32 @@ struct RecoveryScoreCard: View {
     let proteinIntake: Double?
     
     var body: some View {
-        GlassMorphicCard {
-            VStack(spacing: Spacing.md) {
-                Text("Recovery Score")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: Spacing.md) {
+            Text("Recovery Score")
+                .font(.cardTitle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            HStack {
+                RecoveryScoreView(score: recoveryScore, size: 150)
                 
-                HStack {
-                    RecoveryScoreView(score: recoveryScore, size: 150)
+                Spacer()
+                
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    recoveryFactor(
+                        label: "Sleep",
+                        value: profile.sleepGoalHours,
+                        current: sleepHours
+                    )
                     
-                    Spacer()
-                    
-                    VStack(alignment: .leading, spacing: Spacing.sm) {
-                        recoveryFactor(
-                            label: "Sleep",
-                            value: profile.sleepGoalHours,
-                            current: sleepHours
-                        )
-                        
-                        recoveryFactor(
-                            label: "Protein",
-                            value: profile.targetProtein,
-                            current: proteinIntake
-                        )
-                    }
+                    recoveryFactor(
+                        label: "Protein",
+                        value: profile.targetProtein,
+                        current: proteinIntake
+                    )
                 }
             }
         }
+        .accentCard()
     }
     
     private func recoveryFactor(label: String, value: Double, current: Double?) -> some View {

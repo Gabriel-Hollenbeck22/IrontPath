@@ -1,0 +1,485 @@
+{
+    "templates": [
+        {
+            "name": "Push Day (PPL)",
+            "description": "Chest, shoulders, and triceps focused workout for the PPL split",
+            "exercises": [
+                {
+                    "name": "Barbell Bench Press",
+                    "sets": 4,
+                    "reps": "6-8",
+                    "rest": 180
+                },
+                {
+                    "name": "Incline Dumbbell Press",
+                    "sets": 3,
+                    "reps": "8-10",
+                    "rest": 120
+                },
+                {
+                    "name": "Overhead Press",
+                    "sets": 4,
+                    "reps": "6-8",
+                    "rest": 150
+                },
+                {
+                    "name": "Dumbbell Lateral Raise",
+                    "sets": 3,
+                    "reps": "12-15",
+                    "rest": 60
+                },
+                {
+                    "name": "Cable Crossover",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 60
+                },
+                {
+                    "name": "Tricep Pushdown",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 60
+                },
+                {
+                    "name": "Overhead Tricep Extension",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 60
+                }
+            ]
+        },
+        {
+            "name": "Pull Day (PPL)",
+            "description": "Back and biceps focused workout for the PPL split",
+            "exercises": [
+                {
+                    "name": "Barbell Deadlift",
+                    "sets": 4,
+                    "reps": "5-6",
+                    "rest": 180
+                },
+                {
+                    "name": "Pull-Ups",
+                    "sets": 4,
+                    "reps": "6-10",
+                    "rest": 120
+                },
+                {
+                    "name": "Barbell Bent Over Row",
+                    "sets": 4,
+                    "reps": "8-10",
+                    "rest": 120
+                },
+                {
+                    "name": "Seated Cable Row",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 90
+                },
+                {
+                    "name": "Face Pull",
+                    "sets": 3,
+                    "reps": "15-20",
+                    "rest": 60
+                },
+                {
+                    "name": "Barbell Curl",
+                    "sets": 3,
+                    "reps": "8-10",
+                    "rest": 60
+                },
+                {
+                    "name": "Hammer Curl",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 60
+                }
+            ]
+        },
+        {
+            "name": "Leg Day (PPL)",
+            "description": "Complete lower body workout for the PPL split",
+            "exercises": [
+                {
+                    "name": "Barbell Squat",
+                    "sets": 4,
+                    "reps": "6-8",
+                    "rest": 180
+                },
+                {
+                    "name": "Romanian Deadlift",
+                    "sets": 4,
+                    "reps": "8-10",
+                    "rest": 150
+                },
+                {
+                    "name": "Leg Press",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 120
+                },
+                {
+                    "name": "Walking Lunge",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 90
+                },
+                {
+                    "name": "Leg Curl",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 60
+                },
+                {
+                    "name": "Leg Extension",
+                    "sets": 3,
+                    "reps": "12-15",
+                    "rest": 60
+                },
+                {
+                    "name": "Standing Calf Raise",
+                    "sets": 4,
+                    "reps": "12-15",
+                    "rest": 60
+                }
+            ]
+        },
+        {
+            "name": "Upper Body",
+            "description": "Complete upper body workout for upper/lower split",
+            "exercises": [
+                {
+                    "name": "Barbell Bench Press",
+                    "sets": 4,
+                    "reps": "6-8",
+                    "rest": 180
+                },
+                {
+                    "name": "Barbell Bent Over Row",
+                    "sets": 4,
+                    "reps": "6-8",
+                    "rest": 150
+                },
+                {
+                    "name": "Overhead Press",
+                    "sets": 3,
+                    "reps": "8-10",
+                    "rest": 120
+                },
+                {
+                    "name": "Pull-Ups",
+                    "sets": 3,
+                    "reps": "8-10",
+                    "rest": 120
+                },
+                {
+                    "name": "Dumbbell Flyes",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 60
+                },
+                {
+                    "name": "Face Pull",
+                    "sets": 3,
+                    "reps": "15-20",
+                    "rest": 60
+                },
+                {
+                    "name": "Barbell Curl",
+                    "sets": 2,
+                    "reps": "10-12",
+                    "rest": 60
+                },
+                {
+                    "name": "Tricep Pushdown",
+                    "sets": 2,
+                    "reps": "10-12",
+                    "rest": 60
+                }
+            ]
+        },
+        {
+            "name": "Lower Body",
+            "description": "Complete lower body workout for upper/lower split",
+            "exercises": [
+                {
+                    "name": "Barbell Squat",
+                    "sets": 4,
+                    "reps": "6-8",
+                    "rest": 180
+                },
+                {
+                    "name": "Romanian Deadlift",
+                    "sets": 4,
+                    "reps": "8-10",
+                    "rest": 150
+                },
+                {
+                    "name": "Leg Press",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 120
+                },
+                {
+                    "name": "Bulgarian Split Squat",
+                    "sets": 3,
+                    "reps": "8-10",
+                    "rest": 90
+                },
+                {
+                    "name": "Leg Curl",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 60
+                },
+                {
+                    "name": "Leg Extension",
+                    "sets": 3,
+                    "reps": "12-15",
+                    "rest": 60
+                },
+                {
+                    "name": "Standing Calf Raise",
+                    "sets": 4,
+                    "reps": "12-15",
+                    "rest": 60
+                }
+            ]
+        },
+        {
+            "name": "Full Body A",
+            "description": "Balanced full body workout emphasizing compound movements",
+            "exercises": [
+                {
+                    "name": "Barbell Squat",
+                    "sets": 4,
+                    "reps": "6-8",
+                    "rest": 180
+                },
+                {
+                    "name": "Barbell Bench Press",
+                    "sets": 4,
+                    "reps": "6-8",
+                    "rest": 150
+                },
+                {
+                    "name": "Barbell Bent Over Row",
+                    "sets": 4,
+                    "reps": "8-10",
+                    "rest": 120
+                },
+                {
+                    "name": "Overhead Press",
+                    "sets": 3,
+                    "reps": "8-10",
+                    "rest": 120
+                },
+                {
+                    "name": "Romanian Deadlift",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 120
+                },
+                {
+                    "name": "Plank",
+                    "sets": 3,
+                    "reps": "60",
+                    "rest": 60,
+                    "notes": "Hold for 60 seconds"
+                }
+            ]
+        },
+        {
+            "name": "Full Body B",
+            "description": "Balanced full body workout with varied movement patterns",
+            "exercises": [
+                {
+                    "name": "Barbell Deadlift",
+                    "sets": 4,
+                    "reps": "5-6",
+                    "rest": 180
+                },
+                {
+                    "name": "Incline Dumbbell Press",
+                    "sets": 4,
+                    "reps": "8-10",
+                    "rest": 120
+                },
+                {
+                    "name": "Pull-Ups",
+                    "sets": 4,
+                    "reps": "6-10",
+                    "rest": 120
+                },
+                {
+                    "name": "Dumbbell Lateral Raise",
+                    "sets": 3,
+                    "reps": "12-15",
+                    "rest": 60
+                },
+                {
+                    "name": "Leg Press",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 120
+                },
+                {
+                    "name": "Hanging Leg Raise",
+                    "sets": 3,
+                    "reps": "10-15",
+                    "rest": 60
+                }
+            ]
+        },
+        {
+            "name": "Chest & Triceps",
+            "description": "Focused chest and triceps hypertrophy workout",
+            "exercises": [
+                {
+                    "name": "Barbell Bench Press",
+                    "sets": 4,
+                    "reps": "6-8",
+                    "rest": 180
+                },
+                {
+                    "name": "Incline Dumbbell Press",
+                    "sets": 3,
+                    "reps": "8-10",
+                    "rest": 120
+                },
+                {
+                    "name": "Cable Crossover",
+                    "sets": 3,
+                    "reps": "12-15",
+                    "rest": 60
+                },
+                {
+                    "name": "Dips",
+                    "sets": 3,
+                    "reps": "8-12",
+                    "rest": 90
+                },
+                {
+                    "name": "Tricep Pushdown",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 60
+                },
+                {
+                    "name": "Skull Crusher",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 60
+                },
+                {
+                    "name": "Overhead Tricep Extension",
+                    "sets": 2,
+                    "reps": "12-15",
+                    "rest": 60
+                }
+            ]
+        },
+        {
+            "name": "Back & Biceps",
+            "description": "Focused back and biceps hypertrophy workout",
+            "exercises": [
+                {
+                    "name": "Barbell Bent Over Row",
+                    "sets": 4,
+                    "reps": "6-8",
+                    "rest": 150
+                },
+                {
+                    "name": "Pull-Ups",
+                    "sets": 4,
+                    "reps": "6-10",
+                    "rest": 120
+                },
+                {
+                    "name": "Seated Cable Row",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 90
+                },
+                {
+                    "name": "Lat Pulldown",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 90
+                },
+                {
+                    "name": "Face Pull",
+                    "sets": 3,
+                    "reps": "15-20",
+                    "rest": 60
+                },
+                {
+                    "name": "Barbell Curl",
+                    "sets": 3,
+                    "reps": "8-10",
+                    "rest": 60
+                },
+                {
+                    "name": "Incline Dumbbell Curl",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 60
+                }
+            ]
+        },
+        {
+            "name": "Shoulders & Arms",
+            "description": "Focused shoulders and arms workout",
+            "exercises": [
+                {
+                    "name": "Overhead Press",
+                    "sets": 4,
+                    "reps": "6-8",
+                    "rest": 150
+                },
+                {
+                    "name": "Dumbbell Lateral Raise",
+                    "sets": 4,
+                    "reps": "12-15",
+                    "rest": 60
+                },
+                {
+                    "name": "Rear Delt Fly",
+                    "sets": 3,
+                    "reps": "12-15",
+                    "rest": 60
+                },
+                {
+                    "name": "Face Pull",
+                    "sets": 3,
+                    "reps": "15-20",
+                    "rest": 60
+                },
+                {
+                    "name": "Barbell Curl",
+                    "sets": 3,
+                    "reps": "8-10",
+                    "rest": 60
+                },
+                {
+                    "name": "Tricep Pushdown",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest": 60
+                },
+                {
+                    "name": "Hammer Curl",
+                    "sets": 2,
+                    "reps": "10-12",
+                    "rest": 60
+                },
+                {
+                    "name": "Overhead Tricep Extension",
+                    "sets": 2,
+                    "reps": "12-15",
+                    "rest": 60
+                }
+            ]
+        }
+    ]
+}

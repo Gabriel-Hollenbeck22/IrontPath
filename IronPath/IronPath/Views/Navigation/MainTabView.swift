@@ -37,9 +37,9 @@ struct MainTabView: View {
                 }
                 .tag(2)
             
-            AnalyticsView()
+            ReportsView()
                 .tabItem {
-                    Label("Analytics", systemImage: "chart.xyaxis.line")
+                    Label("Reports", systemImage: "chart.bar.doc.horizontal")
                 }
                 .tag(3)
             

@@ -7,11 +7,14 @@
 
 import SwiftUI
 import SwiftData
+import StoreKit
 
 struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.requestReview) var requestReview
     @Query private var userProfiles: [UserProfile]
     @State private var showingEditProfile = false
+    @State private var showingShareSheet = false
     
     var body: some View {
         NavigationStack {
@@ -108,18 +111,135 @@ struct ProfileView: View {
             Text("Settings")
                 .font(.headline)
             
-            NavigationLink(destination: HealthKitSettingsView()) {
-                HStack {
-                    Label("HealthKit", systemImage: "heart.fill")
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(.secondary)
+            VStack(spacing: 1) {
+                NavigationLink(destination: WeightTrackerView()) {
+                    SettingsRow(icon: "scalemass.fill", title: "Weight Tracker", color: .teal)
                 }
-                .padding(Spacing.cardPadding)
-                .background(Color.cardBackground)
-                .cornerRadius(12)
+                
+                NavigationLink(destination: HealthKitSettingsView()) {
+                    SettingsRow(icon: "heart.fill", title: "Apple Health", color: .red)
+                }
+                
+                NavigationLink(destination: NotificationSettingsView()) {
+                    SettingsRow(icon: "bell.fill", title: "Notifications", color: .orange)
+                }
+                
+                NavigationLink(destination: ExportDataView()) {
+                    SettingsRow(icon: "square.and.arrow.up.fill", title: "Export Data", color: .blue)
+                }
             }
+            .background(Color.cardBackground)
+            .cornerRadius(12)
+            
+            // Support section
+            Text("Support")
+                .font(.headline)
+                .padding(.top, Spacing.sm)
+            
+            VStack(spacing: 1) {
+                Button {
+                    HapticManager.lightImpact()
+                    requestReview()
+                } label: {
+                    SettingsRow(icon: "star.fill", title: "Rate IronPath", color: .yellow)
+                }
+                .buttonStyle(.plain)
+                
+                Button {
+                    HapticManager.lightImpact()
+                    showingShareSheet = true
+                } label: {
+                    SettingsRow(icon: "square.and.arrow.up", title: "Share with Friends", color: .green)
+                }
+                .buttonStyle(.plain)
+                
+                NavigationLink(destination: AboutView()) {
+                    SettingsRow(icon: "info.circle.fill", title: "About IronPath", color: .gray)
+                }
+            }
+            .background(Color.cardBackground)
+            .cornerRadius(12)
+            
+            // Version info
+            appVersionInfo
         }
+        .sheet(isPresented: $showingShareSheet) {
+            ShareSheet(items: [
+                "Check out IronPath - the intelligent fitness companion app! 💪",
+                URL(string: "https://apps.apple.com/app/ironpath")!
+            ])
+        }
+    }
+    
+    private var appVersionInfo: some View {
+        HStack {
+            Spacer()
+            VStack(spacing: 2) {
+                Text("IronPath")
+                    .font(.caption.bold())
+                Text("Version \(Bundle.main.appVersion) (\(Bundle.main.buildNumber))")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .padding(.top, Spacing.md)
+    }
+}
+
+// MARK: - Share Sheet
+
+struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+    
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+// MARK: - Bundle Extension
+
+extension Bundle {
+    var appVersion: String {
+        infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+    }
+    
+    var buildNumber: String {
+        infoDictionary?["CFBundleVersion"] as? String ?? "1"
+    }
+}
+
+// MARK: - Settings Row
+
+struct SettingsRow: View {
+    let icon: String
+    let title: String
+    let color: Color
+    
+    var body: some View {
+        HStack {
+            ZStack {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(color)
+                    .frame(width: 28, height: 28)
+                
+                Image(systemName: icon)
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+            }
+            
+            Text(title)
+                .font(.body)
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(Spacing.cardPadding)
     }
 }
 

@@ -34,9 +34,7 @@ struct NutritionView: View {
                     quickActionsSection
                     
                     // Daily Log
-                    if let summary = todaysSummary, let foods = summary.loggedFoods, !foods.isEmpty {
-                        dailyLogSection(foods: foods)
-                    }
+                    dailyLogSection(foods: todaysSummary?.loggedFoods ?? [])
                 }
                 .padding(.horizontal, Spacing.md)
                 .padding(.vertical, Spacing.lg)
@@ -72,7 +70,7 @@ struct NutritionView: View {
     private func nutritionSummarySection(summary: DailySummary) -> some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Text("Today's Macros")
-                .font(.headline)
+                .font(.cardTitle)
             
             HStack(spacing: Spacing.lg) {
                 MacroRingView(
@@ -97,33 +95,25 @@ struct NutritionView: View {
                 )
             }
         }
-        .padding(Spacing.cardPadding)
-        .background(Color.cardBackground)
-        .cornerRadius(16)
+        .premiumCard()
     }
     
     private var quickActionsSection: some View {
         VStack(spacing: Spacing.md) {
             HStack(spacing: Spacing.md) {
-                Button(action: { showingSearch = true }) {
+                Button {
+                    showingSearch = true
+                } label: {
                     Label("Search Food", systemImage: "magnifyingglass")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.ironPathPrimary)
-                        .cornerRadius(12)
                 }
+                .neonGlowButton()
                 
-                Button(action: { showingBarcodeScanner = true }) {
+                Button {
+                    showingBarcodeScanner = true
+                } label: {
                     Label("Scan", systemImage: "barcode.viewfinder")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.ironPathAccent)
-                        .cornerRadius(12)
                 }
+                .neonGlowButton(color: .ironPathAccent)
             }
         }
     }
@@ -131,28 +121,45 @@ struct NutritionView: View {
     private func dailyLogSection(foods: [LoggedFood]) -> some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Text("Today's Log")
-                .font(.headline)
+                .font(.cardTitle)
             
-            ForEach(foods) { food in
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(food.foodItem?.name ?? "Quick Meal")
-                            .font(.body)
-                        Text("\(FormatHelpers.macro(food.protein)) protein")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+            if foods.isEmpty {
+                VStack(spacing: Spacing.md) {
+                    Image(systemName: "fork.knife")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.secondary)
                     
-                    Spacer()
-                    
-                    Text(FormatHelpers.calories(food.calories))
+                    Text("No Food Logged Today")
                         .font(.headline)
+                        .foregroundStyle(.secondary)
+                    
+                    Text("Search or scan to add your meals")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
                 }
-                .padding()
-                .background(Color.cardBackground)
-                .cornerRadius(12)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Spacing.xl)
+            } else {
+                ForEach(foods) { food in
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(food.foodItem?.name ?? "Quick Meal")
+                                .font(.body)
+                            Text("\(FormatHelpers.macro(food.protein)) protein")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Text(FormatHelpers.calories(food.calories))
+                            .font(.headline)
+                    }
+                    .nestedCard()
+                }
             }
         }
+        .premiumCard()
     }
     
     private func setupService() {

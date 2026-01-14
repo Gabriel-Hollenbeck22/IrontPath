@@ -46,6 +46,9 @@ struct DashboardView: View {
                         )
                     }
                     
+                    // Streaks Card
+                    StreakCard()
+                    
                     // Smart Suggestions
                     if !suggestions.isEmpty {
                         SuggestionCarousel(suggestions: suggestions)
@@ -67,7 +70,13 @@ struct DashboardView: View {
             }
             .navigationTitle("Dashboard")
             .navigationBarTitleDisplayMode(.large)
-            .background(Color(.systemGroupedBackground))
+            .background(
+                LinearGradient(
+                    colors: [Color.subtleGradientTop, Color.subtleGradientBottom],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
             .onAppear {
                 setupServices()
                 loadDashboardData()
@@ -78,11 +87,11 @@ struct DashboardView: View {
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text(greeting)
-                .font(.title)
+                .font(.sectionTitle)
                 .foregroundStyle(.primary)
             
             Text(Date(), style: .date)
-                .font(.callout)
+                .font(.emphasizedCallout)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

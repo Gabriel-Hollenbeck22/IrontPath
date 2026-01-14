@@ -14,7 +14,7 @@ struct CorrelationChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Text("Protein vs Volume")
-                .font(.headline)
+                .font(.cardTitle)
             
             Chart {
                 ForEach(data.dataPoints, id: \.date) { point in
@@ -43,10 +43,8 @@ struct CorrelationChartView: View {
                 }
             }
             .frame(height: 200)
-            .padding()
-            .background(Color.cardBackground)
-            .cornerRadius(16)
         }
+        .premiumCard()
     }
 }
 

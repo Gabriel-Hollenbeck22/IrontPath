@@ -12,37 +12,36 @@ struct MacroProgressSection: View {
     let profile: UserProfile
     
     var body: some View {
-        GlassMorphicCard {
-            VStack(alignment: .leading, spacing: Spacing.md) {
-                Text("Today's Macros")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            Text("Today's Macros")
+                .font(.cardTitle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            HStack(spacing: Spacing.lg) {
+                MacroRingView(
+                    current: summary.totalProtein,
+                    target: profile.targetProtein,
+                    color: .macroProtein,
+                    label: "Protein"
+                )
                 
-                HStack(spacing: Spacing.lg) {
-                    MacroRingView(
-                        current: summary.totalProtein,
-                        target: profile.targetProtein,
-                        color: .macroProtein,
-                        label: "Protein"
-                    )
-                    
-                    MacroRingView(
-                        current: summary.totalCarbs,
-                        target: profile.targetCarbs,
-                        color: .macroCarbs,
-                        label: "Carbs"
-                    )
-                    
-                    MacroRingView(
-                        current: summary.totalFat,
-                        target: profile.targetFat,
-                        color: .macroFat,
-                        label: "Fat"
-                    )
-                }
-                .frame(maxWidth: .infinity)
+                MacroRingView(
+                    current: summary.totalCarbs,
+                    target: profile.targetCarbs,
+                    color: .macroCarbs,
+                    label: "Carbs"
+                )
+                
+                MacroRingView(
+                    current: summary.totalFat,
+                    target: profile.targetFat,
+                    color: .macroFat,
+                    label: "Fat"
+                )
             }
+            .frame(maxWidth: .infinity)
         }
+        .premiumCard()
     }
 }
 

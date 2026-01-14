@@ -27,6 +27,9 @@ extension Color {
     /// Danger/Error state (red)
     static let ironPathDanger = Color.red
     
+    /// Error state alias (red)
+    static let ironPathError = Color.red
+    
     // MARK: - Macro Colors
     
     /// Protein color (blue)
@@ -56,5 +59,22 @@ extension Color {
     
     /// Secondary background
     static let secondaryBackground = Color(.secondarySystemBackground)
+    
+    // MARK: - Glass & Glow Effects
+    
+    /// Glass background for premium cards
+    static let glassBackground = Color.white.opacity(0.06)
+    
+    /// Glass border color
+    static let glassBorder = Color.white.opacity(0.08)
+    
+    /// Primary color glow effect
+    static let glowPrimary = Color.ironPathPrimary.opacity(0.5)
+    
+    /// Subtle gradient top for backgrounds
+    static let subtleGradientTop = Color.black
+    
+    /// Subtle gradient bottom for backgrounds
+    static let subtleGradientBottom = Color(.systemGray6).opacity(0.08)
 }
 

@@ -1,251 +1,216 @@
-# IronPath - Bio-Feedback Fitness App
+<p align="center">
+  <img src="docs/screenshots/app-icon.png" alt="IronPath Logo" width="120" height="120">
+</p>
 
-> **Status:** ✅ Core Architecture Complete - Ready for UI Development
+<h1 align="center">IronPath</h1>
 
-A high-performance iOS fitness app that eliminates the friction between "What I lift" and "What I eat" by treating lifting data and nutritional data as two halves of a single goal.
+<p align="center">
+  <strong>Your Intelligent Fitness Companion</strong>
+</p>
 
-## 🎯 Core Vision
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#screenshots">Screenshots</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#getting-started">Getting Started</a>
+</p>
 
-IronPath is built on the principle that your training and nutrition are inseparable. The app provides:
-
-- **Unified Logic:** High-volume leg day? The app automatically suggests a "Recovery Buffer" in your macros.
-- **Smart Insights:** See how your protein dip two days ago affected your strength today.
-- **Bio-Feedback Loop:** Sleep, nutrition, and training volume all feed into your daily Recovery Score.
-- **Cost-Conscious:** Free to run - no paid APIs, no backend servers, local-first architecture.
-
-## 📊 What's Been Built
-
-### ✅ Complete Core Architecture
-
-All foundational systems are implemented and tested:
-
-1. **SwiftData Models** (8 models)
-   - Workout domain (Exercise, Workout, WorkoutSet)
-   - Nutrition domain (FoodItem, LoggedFood, Recipe)
-   - Core domain (UserProfile, DailySummary)
-
-2. **Service Layer** (5 services)
-   - WorkoutManager - Volume calculations, 1RM tracking, PR detection
-   - NutritionService - Three-tier search, food logging, meal suggestions
-   - IntegrationEngine - Recovery scores, smart suggestions, correlation analysis
-   - HealthKitManager - Sleep, weight, calories, steps
-   - ExerciseLibraryLoader - 200+ bundled exercises
-
-3. **Integration Engine** (The "Bio-Feedback" Core)
-   - Recovery Score calculation (sleep + protein + rest)
-   - Dynamic macro adjustments for high-volume workouts
-   - Smart suggestions (plateau detection, protein warnings, recovery alerts)
-   - 7-day correlation data for visualization
-
-4. **Supporting Infrastructure**
-   - AppConfiguration - Centralized constants
-   - ExerciseLibrary.json - 200+ exercises across all muscle groups
-   - Proper SwiftData relationships with cascade rules
-
-See [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) for complete technical documentation.
-
-## 🏗️ Technical Stack
-
-- **Language:** Swift 6 / SwiftUI
-- **Persistence:** SwiftData (Primary) + HealthKit (System-level sync)
-- **Nutrition Data:** Open Food Facts API (Free/Open Source)
-- **Architecture:** MVVM with @Observable (iOS 17+)
-- **Deployment:** iOS 17+
-- **Cost:** $0 (no paid APIs or backends)
-
-## 🔄 The Integration Engine
-
-The heart of IronPath is the Integration Engine, which connects three data streams:
-
-```
-┌─────────────┐     ┌──────────────────┐     ┌─────────────┐
-│   Workouts  │────▶│  Integration     │────▶│   Smart     │
-│  (Volume)   │     │    Engine        │     │ Suggestions │
-└─────────────┘     │                  │     └─────────────┘
-                    │  • Recovery Score│
-┌─────────────┐     │  • Buffer Calc   │     ┌─────────────┐
-│  Nutrition  │────▶│  • Correlation   │────▶│   Macro     │
-│  (Macros)   │     │  • Suggestions   │     │ Adjustments │
-└─────────────┘     └──────────────────┘     └─────────────┘
-                            ▲
-┌─────────────┐             │
-│  HealthKit  │─────────────┘
-│  (Sleep)    │
-└─────────────┘
-```
-
-### Key Formulas
-
-**Recovery Score:**
-```
-Score = (Sleep × 0.4) + (Protein × 0.35) + (Rest × 0.25)
-```
-
-**1RM Estimation (Brzycki):**
-```
-1RM = Weight × (36 / (37 - Reps))
-```
-
-**Recovery Buffer (High Volume):**
-```
-If volume > 80th percentile:
-  Carb Boost = 40g × normalized percentile
-  Protein Boost = 20g × normalized percentile
-```
-
-## 📱 Next Steps: UI Development
-
-The data layer is complete. Here's what needs to be built:
-
-### Phase 1: Core Views (Minimum Viable Product)
-1. **Workout Logger** - Live session interface with set tracking
-2. **Nutrition Logger** - Food search, barcode scan, quick entry
-3. **Dashboard** - Recovery score, suggestions, macro progress
-4. **Profile Setup** - Initial onboarding, target configuration
-
-### Phase 2: Enhanced Experience
-5. **Analytics** - Charts for volume trends, 1RM progression, correlation
-6. **History** - Workout list, food diary, calendar view
-7. **Exercise Library** - Browse, search, view instructions
-8. **Recipe Builder** - Create custom meals
-
-### Phase 3: Polish
-9. **Settings** - HealthKit setup, units, notifications
-10. **Haptics & Animations** - Professional feel with micro-interactions
-11. **Dark Mode Refinement** - "Midnight Professional" aesthetic
-12. **Quick Actions** - Home screen shortcuts, widgets
-
-## 🎨 Design Philosophy
-
-- **Midnight Professional:** Dark mode default, high-contrast typography
-- **Glassmorphism:** Material backgrounds, smooth transitions
-- **Haptic Feedback:** Button presses, set completions, goal achievements
-- **Simplicity:** Minimize taps to log - swipe actions for editing/deleting
-- **Offline-First:** Perfect functionality with zero cell service
-
-## 🧪 Testing the Architecture
-
-Run the app to see the status screen. Try this workflow:
-
-1. Tap "Initialize Sample Data" to create a UserProfile
-2. Exercise library auto-loads on first launch (200+ exercises)
-3. Ready for UI implementation
-
-To manually test services (in a view or preview):
-
-```swift
-let workoutManager = WorkoutManager(modelContext: modelContext)
-let workout = workoutManager.startWorkout(name: "Push Day")
-
-let exercise = exercises.first! // Get from @Query
-try workoutManager.logSet(
-    exercise: exercise,
-    setNumber: 1,
-    weight: 225,
-    reps: 5,
-    rpe: 8
-)
-
-try workoutManager.completeWorkout()
-```
-
-## 📂 Project Structure
-
-```
-IronPath/
-├── IronPath/
-│   ├── Models/
-│   │   ├── Workout/      (Exercise, Workout, WorkoutSet)
-│   │   ├── Nutrition/    (FoodItem, LoggedFood, Recipe)
-│   │   └── Core/         (UserProfile, DailySummary)
-│   ├── Services/
-│   │   ├── WorkoutManager.swift
-│   │   ├── NutritionService.swift
-│   │   ├── IntegrationEngine.swift
-│   │   ├── HealthKitManager.swift
-│   │   └── ExerciseLibraryLoader.swift
-│   ├── Configuration/
-│   │   └── AppConfiguration.swift
-│   ├── Resources/
-│   │   └── ExerciseLibrary.json (200+ exercises)
-│   ├── IronPathApp.swift
-│   └── ContentView.swift
-├── IMPLEMENTATION_SUMMARY.md (Detailed technical docs)
-└── README.md (This file)
-```
-
-## ⚙️ Setup Requirements
-
-### Info.plist Additions (Required for HealthKit)
-
-```xml
-<key>NSHealthShareUsageDescription</key>
-<string>IronPath needs access to read your sleep, weight, and activity data to provide personalized recovery recommendations.</string>
-
-<key>NSHealthUpdateUsageDescription</key>
-<string>IronPath needs permission to save your body weight measurements.</string>
-```
-
-### Xcode Capabilities
-- Enable HealthKit in Signing & Capabilities
-- Camera permission (for future barcode scanning)
-
-## 🚀 Quick Start
-
-1. Open `IronPath.xcodeproj` in Xcode
-2. Add HealthKit capability
-3. Update Info.plist with usage descriptions
-4. Build and run (iOS 17+ simulator or device)
-5. The exercise library will auto-import on first launch
-6. Begin building UI views connected to the services
-
-## 📖 Documentation
-
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Complete technical documentation
-  - All models and their relationships
-  - Service APIs and usage examples
-  - Integration Engine formulas
-  - Data flow diagrams
-  - Smart suggestion triggers
-  - Testing recommendations
-
-## 💡 Key Design Decisions
-
-1. **@Observable over ObservableObject** - Better performance, cleaner syntax (iOS 17+)
-2. **Three-Tier Food Search** - User history → Bundled → API (minimize network calls)
-3. **Cached Macros in LoggedFood** - Fast daily summary calculations
-4. **Pre-computed Recovery Scores** - Stored in DailySummary for instant dashboard loads
-5. **Volume Percentiles** - User-relative workout intensity tracking
-6. **Local Exercise Library** - No API calls for common exercises
-
-## 🎯 Success Metrics
-
-The architecture is designed to support:
-- ⚡️ **Instant offline access** - All core features work without internet
-- 💾 **Efficient storage** - SwiftData handles large datasets smoothly
-- 🔒 **Privacy-first** - No data leaves the device except optional HealthKit
-- 🎨 **Smooth UX** - Pre-computed values for fast UI updates
-- 📊 **Rich insights** - Correlation data enables powerful visualizations
-
-## 🤝 Contributing
-
-This is a personal project, but the architecture is clean and modular. Key extension points:
-
-- **Custom Formulas** - Add new 1RM formulas in WorkoutSet
-- **Additional Suggestions** - Extend `IntegrationEngine.generateSuggestions()`
-- **New Health Metrics** - Add to HealthKitManager and DailySummary
-- **Alternative APIs** - Swap NutritionService API in AppConfiguration
-
-## 📄 License
-
-Private project - All rights reserved.
+<p align="center">
+  <img src="https://img.shields.io/badge/Swift-5.10-orange?logo=swift" alt="Swift 5.10">
+  <img src="https://img.shields.io/badge/SwiftUI-iOS%2017+-blue?logo=apple" alt="SwiftUI">
+  <img src="https://img.shields.io/badge/SwiftData-Persistence-purple" alt="SwiftData">
+  <img src="https://img.shields.io/badge/HealthKit-Integration-red?logo=apple" alt="HealthKit">
+  <img src="https://img.shields.io/badge/WidgetKit-Widgets-cyan" alt="WidgetKit">
+</p>
 
 ---
 
-**Built with:** Swift 6, SwiftUI, SwiftData, HealthKit  
-**Developer:** Gabriel Hollenbeck  
-**Status:** Core Architecture Complete ✅  
-**Next Phase:** UI Development 🎨
+## Overview
 
-*"Your workouts inform your nutrition. Your nutrition powers your workouts. IronPath connects the two."*
+IronPath is a comprehensive fitness tracking iOS app that combines intelligent workout logging with nutrition management. Using science-backed algorithms, it analyzes correlations between your workouts, nutrition, sleep, and recovery to provide personalized recommendations.
 
+## Features
+
+### 💪 Smart Workout Tracking
+- **Progressive Overload Detection**: Automatically identifies when you're ready to increase weight
+- **Volume Tracking**: Monitor total workout volume with per-muscle group breakdowns
+- **Exercise Library**: 100+ exercises with muscle group targeting
+- **Workout Templates**: Pre-built programs (PPL, Upper/Lower, Full Body) or create your own
+- **Rest Timer**: Configurable rest periods with haptic notifications
+
+### 🍎 Nutrition Management
+- **Barcode Scanning**: Quickly log foods using camera (Open Food Facts API)
+- **Macro Tracking**: Real-time protein, carbs, and fat monitoring
+- **Custom Recipes**: Build and save your favorite meals
+- **Calorie Reports**: Daily, weekly, and monthly visualizations
+- **Micronutrient Tracking**: Complete vitamin and mineral logging
+
+### 📊 Intelligent Insights
+- **Recovery Score**: Calculated from sleep, protein intake, and rest days
+- **Smart Suggestions**: Science-backed recommendations like:
+  - "Strength plateauing? Add 40g carbs on training days"
+  - "Hit 8+ reps 3x in a row - time to progress weight"
+  - "High leg volume yesterday - upper body recommended"
+- **Correlation Charts**: Visualize relationships between nutrition and performance
+
+### 🔥 Gamification
+- **Streak Tracking**: Workout and nutrition logging streaks
+- **Milestone Celebrations**: Animated celebrations for achievements
+- **Progress Charts**: Track your journey over time
+
+### ❤️ Apple Ecosystem Integration
+- **HealthKit**: Sync weight, sleep, and activity data
+- **Widgets**: Home screen widgets for streaks and daily progress
+- **Notifications**: Smart reminders for workouts and meal logging
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" width="200" alt="Dashboard">
+  <img src="docs/screenshots/workout.png" width="200" alt="Workout">
+  <img src="docs/screenshots/nutrition.png" width="200" alt="Nutrition">
+  <img src="docs/screenshots/analytics.png" width="200" alt="Analytics">
+</p>
+
+> *Add your own screenshots by running the app in Simulator and using `Cmd+S` to save*
+
+## Tech Stack
+
+| Technology | Usage |
+|------------|-------|
+| **Swift 5.10** | Primary language |
+| **SwiftUI** | Declarative UI framework |
+| **SwiftData** | Data persistence (iOS 17+) |
+| **Swift Charts** | Data visualization |
+| **HealthKit** | Health data integration |
+| **WidgetKit** | Home screen widgets |
+| **AVFoundation** | Barcode scanning |
+
+## Architecture
+
+```
+IronPath/
+├── Models/                    # SwiftData models
+│   ├── Core/                  # UserProfile, DailySummary, StreakData
+│   ├── Workout/               # Workout, Exercise, WorkoutSet
+│   └── Nutrition/             # FoodItem, LoggedFood, Recipe
+├── Views/                     # SwiftUI views by feature
+│   ├── Dashboard/
+│   ├── Workout/
+│   ├── Nutrition/
+│   ├── Reports/
+│   ├── Profile/
+│   └── Onboarding/
+├── Services/                  # Business logic
+│   ├── IntegrationEngine      # Recovery scores, smart suggestions
+│   ├── NutritionService       # Food logging, API integration
+│   ├── WorkoutManager         # Workout session management
+│   ├── HealthKitManager       # Apple Health sync
+│   └── NotificationManager    # Local notifications
+├── Components/                # Reusable UI components
+│   ├── Common/                # Cards, buttons, empty states
+│   ├── Workout/               # Exercise rows, rest timer
+│   └── Nutrition/             # Food rows
+├── Theme/                     # Design system
+│   ├── Colors
+│   ├── Typography
+│   ├── CardStyles
+│   └── ButtonStyles
+└── Utilities/                 # Helpers
+    ├── FormatHelpers
+    └── HapticManager
+```
+
+### Data Flow
+
+```
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│   SwiftUI View  │────▶│     Service      │────▶│   SwiftData    │
+│  (Presentation) │     │  (Business Logic)│     │  (Persistence)  │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+         │                       │                        │
+         │                       ▼                        │
+         │              ┌──────────────────┐              │
+         │              │  IntegrationEngine│              │
+         │              │  (Correlations)   │              │
+         │              └──────────────────┘              │
+         │                       │                        │
+         └───────────────────────┴────────────────────────┘
+                    HealthKit / Widgets / Notifications
+```
+
+## Getting Started
+
+### Requirements
+- iOS 17.0+
+- Xcode 15.0+
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/IronPath.git
+cd IronPath
+```
+
+2. Open in Xcode:
+```bash
+open IronPath/IronPath.xcodeproj
+```
+
+3. Build and run (`Cmd + R`)
+
+### Widget Setup (Optional)
+
+To enable widgets:
+1. Add the Widget Extension target in Xcode
+2. Configure App Groups for both targets
+3. See `IronPathWidget/WIDGET_SETUP.md` for details
+
+### Testing
+
+```bash
+# Run all tests
+xcodebuild test -scheme IronPath -destination 'platform=iOS Simulator,name=iPhone 15'
+```
+
+## Key Implementation Details
+
+### Recovery Score Algorithm
+```swift
+recoveryScore = (sleepFactor * 0.4) + (proteinFactor * 0.35) + (restFactor * 0.25)
+```
+- **Sleep Factor**: Percentage of sleep goal achieved
+- **Protein Factor**: Percentage of protein target hit
+- **Rest Factor**: Days since last workout (48hrs = fully rested)
+
+### BMR Calculation (Mifflin-St Jeor)
+```swift
+// Male: BMR = 10*weight(kg) + 6.25*height(cm) - 5*age + 5
+// Female: BMR = 10*weight(kg) + 6.25*height(cm) - 5*age - 161
+// Then multiply by activity level (1.2 - 1.9)
+```
+
+### Progressive Overload Detection
+The app tracks when you hit 8+ reps at the same weight for 3 consecutive sessions, then suggests increasing weight by 5 lbs.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Nutrition data powered by [Open Food Facts](https://world.openfoodfacts.org/)
+- Icons from SF Symbols
+- Inspired by apps like Cronometer, MacroFactor, and Stronger
+
+---
+
+<p align="center">
+  Made with ❤️ by Gabriel Hollenbeck
+</p>
