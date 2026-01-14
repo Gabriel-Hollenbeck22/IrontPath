@@ -8,6 +8,24 @@
 import Foundation
 import SwiftData
 
+// #region debug log helper
+func debugLogNutrition(_ location: String, _ message: String, _ data: [String: Any] = [:], hypothesisId: String = "") {
+    let logPath = "/Users/gabehollenbeck/Desktop/IronPath Ai/.cursor/debug.log"
+    let timestamp = Int(Date().timeIntervalSince1970 * 1000)
+    var logData: [String: Any] = ["location": location, "message": message, "data": data, "timestamp": timestamp, "sessionId": "debug-session"]
+    if !hypothesisId.isEmpty { logData["hypothesisId"] = hypothesisId }
+    if let jsonData = try? JSONSerialization.data(withJSONObject: logData), let jsonString = String(data: jsonData, encoding: .utf8) {
+        if let handle = FileHandle(forWritingAtPath: logPath) {
+            handle.seekToEndOfFile()
+            handle.write((jsonString + "\n").data(using: .utf8)!)
+            handle.closeFile()
+        } else {
+            FileManager.default.createFile(atPath: logPath, contents: (jsonString + "\n").data(using: .utf8))
+        }
+    }
+}
+// #endregion
+
 @Observable
 final class NutritionService {
     private let modelContext: ModelContext
@@ -34,32 +52,58 @@ final class NutritionService {
     /// 2. Bundled common foods
     /// 3. Open Food Facts API
     func searchFood(query: String) async throws -> [FoodSearchResult] {
+        // #region agent log
+        debugLogNutrition("NutritionService.swift:searchFood-start", "Starting food search", ["query": query], hypothesisId: "A")
+        // #endregion
         var results: [FoodSearchResult] = []
         
         // Tier 1: User History (convert FoodItem to FoodSearchItem)
+        // #region agent log
+        debugLogNutrition("NutritionService.swift:searchFood-tier1", "Searching user history", [:], hypothesisId: "A")
+        // #endregion
         let userResults = searchUserHistory(query: query)
+        // #region agent log
+        debugLogNutrition("NutritionService.swift:searchFood-tier1-done", "User history search complete", ["count": userResults.count], hypothesisId: "A")
+        // #endregion
         results.append(contentsOf: userResults.map { .userHistory(FoodSearchItem(from: $0)) })
         
         // Tier 2: Bundled Foods (convert FoodItem to FoodSearchItem)
+        // #region agent log
+        debugLogNutrition("NutritionService.swift:searchFood-tier2", "Searching bundled foods", [:], hypothesisId: "A")
+        // #endregion
         let bundledResults = searchBundledFoods(query: query)
+        // #region agent log
+        debugLogNutrition("NutritionService.swift:searchFood-tier2-done", "Bundled foods search complete", ["count": bundledResults.count], hypothesisId: "A")
+        // #endregion
         results.append(contentsOf: bundledResults.map { .bundled(FoodSearchItem(from: $0)) })
         
         // Tier 3: Open Food Facts (already returns FoodSearchItem)
         if results.count < 10 {
+            // #region agent log
+            debugLogNutrition("NutritionService.swift:searchFood-tier3", "Searching Open Food Facts API", [:], hypothesisId: "A")
+            // #endregion
             let apiResults = try await searchOpenFoodFacts(query: query)
+            // #region agent log
+            debugLogNutrition("NutritionService.swift:searchFood-tier3-done", "Open Food Facts search complete", ["count": apiResults.count], hypothesisId: "A")
+            // #endregion
             results.append(contentsOf: apiResults.map { .openFoodFacts($0) })
         }
         
+        // #region agent log
+        debugLogNutrition("NutritionService.swift:searchFood-complete", "Search complete", ["totalResults": results.count], hypothesisId: "A")
+        // #endregion
         return results
     }
     
     /// Search user's history - prioritize frequent and recent items
     private func searchUserHistory(query: String) -> [FoodItem] {
+        // #region agent log
+        debugLogNutrition("NutritionService.swift:searchUserHistory-start", "Starting user history search", ["query": query], hypothesisId: "A")
+        // #endregion
         let lowercaseQuery = query.lowercased()
+        
+        // Fetch all items and filter in memory (SwiftData predicates may not support enum comparison)
         let descriptor = FetchDescriptor<FoodItem>(
-            predicate: #Predicate<FoodItem> { food in
-                food.source.rawValue == "user_history"
-            },
             sortBy: [
                 SortDescriptor(\.useCount, order: .reverse),
                 SortDescriptor(\.lastUsed, order: .reverse)
@@ -67,10 +111,29 @@ final class NutritionService {
         )
         
         do {
+            // #region agent log
+            debugLogNutrition("NutritionService.swift:searchUserHistory-fetch", "Fetching items from database", [:], hypothesisId: "A")
+            // #endregion
             let allItems = try modelContext.fetch(descriptor)
-            let filtered = allItems.filter { $0.name.localizedStandardContains(lowercaseQuery) }
+            // #region agent log
+            debugLogNutrition("NutritionService.swift:searchUserHistory-fetched", "Fetched items from database", ["count": allItems.count], hypothesisId: "A")
+            // #endregion
+            
+            // Filter by source enum and name in memory
+            let userHistoryItems = allItems.filter { $0.source == .userHistory }
+            // #region agent log
+            debugLogNutrition("NutritionService.swift:searchUserHistory-filtered-source", "Filtered by source", ["count": userHistoryItems.count], hypothesisId: "A")
+            // #endregion
+            
+            let filtered = userHistoryItems.filter { $0.name.localizedStandardContains(lowercaseQuery) }
+            // #region agent log
+            debugLogNutrition("NutritionService.swift:searchUserHistory-filtered-name", "Filtered by name", ["count": filtered.count], hypothesisId: "A")
+            // #endregion
             return Array(filtered.prefix(5))
         } catch {
+            // #region agent log
+            debugLogNutrition("NutritionService.swift:searchUserHistory-error", "Error fetching user history", ["error": "\(error)"], hypothesisId: "A")
+            // #endregion
             print("Error searching user history: \(error)")
             return []
         }
